@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro | Boas-Vindas</title>
+  <script src="./index.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container"> <!-- novo container -->
+    <header>
+      <h1>🎀 Cadastre-se</h1>
+      <p>Preencha seus dados para receber nossas novidades!</p>
+    </header>
+
+    <main>
+      <div class="form-container">
+        <form id="cadastroForm">
+          <input type="text" placeholder="Seu nome" id="nome" required />
+          <input type="email" placeholder="Seu e-mail" id="email" required />
+          <button type="submit">Cadastrar</button>
+        </form>
+        <div id="mensagens" class="mensagens"></div> <!-- substitui o <p> -->
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2025 Cadastro | Boas-Vindas</p>
+      <div class="status">
+        <span id="statusApi">🔄 Verificando conexão...</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('cadastroForm');
+    const mensagens = document.getElementById('mensagens');
+    const statusApi = document.getElementById('statusApi');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      mensagens.innerHTML = ''; // limpa mensagens
+
+      if (!nome || !email) {
+        mensagens.innerHTML = '<p class="mensagem erro">Por favor, preencha todos os campos.</p>';
+        return;
+      }
+
+      try {
+        statusApi.textContent = '🔄 Enviando...';
+
+        const response = await fetch('http://localhost:3000/cadastrar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, email })
+        });
+
+        const texto = await response.text();
+
+        if (response.ok) {
+          mensagens.innerHTML = `<p class="mensagem sucesso">${texto}</p>`;
+          form.reset();
+        } else {
+          mensagens.innerHTML = `<p class="mensagem erro">${texto || 'Erro ao cadastrar.'}</p>`;
+        }
+
+      } catch (error) {
+        mensagens.innerHTML = '<p class="mensagem erro">Não foi possível conectar com o servidor.</p>';
+      } finally {
+        statusApi.textContent = '✅ Pronto';
+      }
+    });
+  </script>
+</body>
+</html>
